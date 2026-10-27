@@ -1,0 +1,11 @@
+out/
+*.class
+splitmoney-data.txt
+splitmoney-data.txt.tmp
+sources.txt
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
