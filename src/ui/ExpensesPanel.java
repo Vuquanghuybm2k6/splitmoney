@@ -35,61 +35,104 @@ public class ExpensesPanel extends JPanel {
         this.frame = frame;
         this.data = data;
 
-        setLayout(new BorderLayout(8, 8));
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        setLayout(new BorderLayout(10, 10));
+        setOpaque(false);
+        setBorder(Theme.cardBorder());
 
         add(buildForm(), BorderLayout.NORTH);
 
-        table.setRowHeight(24);
+        table.setRowHeight(28);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        DefaultTableCellRenderer right = new DefaultTableCellRenderer();
-        right.setHorizontalAlignment(SwingConstants.RIGHT);
+        table.setShowVerticalLines(false);
+        table.setShowHorizontalLines(true);
+        table.setGridColor(Theme.BORDER);
+        table.setIntercellSpacing(new Dimension(0, 1));
+        table.setSelectionBackground(new Color(239, 246, 255));
+        table.setSelectionForeground(Theme.TEXT_PRIMARY);
+        table.setFillsViewportHeight(true);
+        javax.swing.table.JTableHeader header = table.getTableHeader();
+        header.setBackground(Theme.HEADER_BG);
+        header.setForeground(Theme.TEXT_PRIMARY);
+        header.setPreferredSize(new Dimension(header.getPreferredSize().width, 32));
+        header.setBorder(new javax.swing.border.MatteBorder(0, 0, 1, 0, Theme.BORDER));
+        DefaultTableCellRenderer right = Theme.rightRenderer();
         table.getColumnModel().getColumn(2).setCellRenderer(right);
         table.getColumnModel().getColumn(0).setPreferredWidth(160);
         table.getColumnModel().getColumn(3).setPreferredWidth(260);
-        add(new JScrollPane(table), BorderLayout.CENTER);
+        JScrollPane tableScroll = new JScrollPane(table);
+        tableScroll.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Theme.BORDER),
+                "Danh sách khoản chi", 0, 0, Theme.FONT_BOLD, Theme.TEXT_PRIMARY
+        ));
+        tableScroll.getViewport().setBackground(Theme.CARD_BG);
+        add(tableScroll, BorderLayout.CENTER);
 
-        JPanel bottom = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
-        JButton deleteButton = new JButton("Xóa khoản chi đã chọn");
+        JPanel bottomCard = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        bottomCard.setBackground(Theme.CARD_BG);
+        bottomCard.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Theme.BORDER),
+                "Thao tác", 0, 0, Theme.FONT_BOLD, Theme.TEXT_PRIMARY
+        ));
+        JButton deleteButton = Theme.secondaryButton("Xóa khoản chi đã chọn");
         deleteButton.addActionListener(e -> deleteExpense());
-        bottom.add(deleteButton);
-        bottom.add(new JLabel("(Muốn sửa thì xóa rồi thêm lại)"));
-        add(bottom, BorderLayout.SOUTH);
+        bottomCard.add(deleteButton);
+        JLabel hint = new JLabel("(Muốn sửa thì xóa rồi thêm lại)");
+        hint.setForeground(Theme.TEXT_SECONDARY);
+        bottomCard.add(hint);
+        add(bottomCard, BorderLayout.SOUTH);
     }
 
     private JPanel buildForm() {
         JPanel form = new JPanel(new GridBagLayout());
-        form.setBorder(BorderFactory.createTitledBorder("Thêm khoản chi"));
+        form.setBackground(Theme.CARD_BG);
+        form.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Theme.BORDER),
+                "Thêm khoản chi", 0, 0, Theme.FONT_BOLD, Theme.TEXT_PRIMARY
+        ));
         GridBagConstraints c = new GridBagConstraints();
-        c.insets = new Insets(4, 6, 4, 6);
+        c.insets = new Insets(4, 8, 4, 8);
         c.anchor = GridBagConstraints.WEST;
 
         c.gridx = 0; c.gridy = 0;
-        form.add(new JLabel("Mô tả:"), c);
+        JLabel descLabel = new JLabel("Mô tả:");
+        descLabel.setForeground(Theme.TEXT_SECONDARY);
+        form.add(descLabel, c);
         c.gridx = 1; c.fill = GridBagConstraints.HORIZONTAL; c.weightx = 1;
+        titleField.setPreferredSize(new Dimension(200, 32));
         form.add(titleField, c);
         c.gridx = 2; c.fill = GridBagConstraints.NONE; c.weightx = 0;
-        form.add(new JLabel("Số tiền (đ):"), c);
+        JLabel amountLabel = new JLabel("Số tiền (đ):");
+        amountLabel.setForeground(Theme.TEXT_SECONDARY);
+        form.add(amountLabel, c);
         c.gridx = 3;
+        amountField.setPreferredSize(new Dimension(120, 32));
         form.add(amountField, c);
 
         c.gridx = 0; c.gridy = 1;
-        form.add(new JLabel("Người trả:"), c);
+        JLabel payerLabel = new JLabel("Người trả:");
+        payerLabel.setForeground(Theme.TEXT_SECONDARY);
+        form.add(payerLabel, c);
         c.gridx = 1; c.fill = GridBagConstraints.HORIZONTAL;
+        payerBox.setPreferredSize(new Dimension(200, 32));
         form.add(payerBox, c);
 
         c.gridx = 0; c.gridy = 2; c.fill = GridBagConstraints.NONE; c.anchor = GridBagConstraints.NORTHWEST;
-        form.add(new JLabel("Người tham gia:"), c);
+        JLabel participantsLabel = new JLabel("Người tham gia:");
+        participantsLabel.setForeground(Theme.TEXT_SECONDARY);
+        form.add(participantsLabel, c);
         c.gridx = 1; c.gridwidth = 3; c.fill = GridBagConstraints.HORIZONTAL;
+        participantsPanel.setBackground(Theme.CARD_BG);
         JScrollPane sp = new JScrollPane(participantsPanel);
-        sp.setPreferredSize(new Dimension(400, 70));
+        sp.setPreferredSize(new Dimension(400, 76));
+        sp.setBorder(BorderFactory.createLineBorder(Theme.BORDER));
         form.add(sp, c);
 
         c.gridx = 1; c.gridy = 3; c.gridwidth = 3; c.fill = GridBagConstraints.NONE;
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
-        JButton allButton = new JButton("Chọn tất cả");
-        JButton noneButton = new JButton("Bỏ chọn hết");
-        JButton addButton = new JButton("Thêm");
+        buttons.setOpaque(false);
+        JButton allButton = Theme.secondaryButton("Chọn tất cả");
+        JButton noneButton = Theme.secondaryButton("Bỏ chọn hết");
+        JButton addButton = Theme.primaryButton("Thêm");
         buttons.add(allButton);
         buttons.add(noneButton);
         buttons.add(addButton);

@@ -19,27 +19,48 @@ public class MembersPanel extends JPanel {
         this.frame = frame;
         this.data = data;
 
-        setLayout(new BorderLayout(8, 8));
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        setLayout(new BorderLayout(10, 10));
+        setOpaque(false);
+        setBorder(Theme.cardBorder());
 
         // Form nhập
-        JPanel form = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
-        form.add(new JLabel("Tên thành viên:"));
-        form.add(nameField);
-        JButton addButton = new JButton("Thêm");
-        form.add(addButton);
-        add(form, BorderLayout.NORTH);
+        JPanel formCard = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        formCard.setBackground(Theme.CARD_BG);
+        formCard.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Theme.BORDER),
+                "Thêm thành viên", 0, 0, Theme.FONT_BOLD, Theme.TEXT_PRIMARY
+        ));
+        JLabel nameLabel = new JLabel("Tên thành viên:");
+        nameLabel.setForeground(Theme.TEXT_SECONDARY);
+        formCard.add(nameLabel);
+        nameField.setPreferredSize(new Dimension(220, 32));
+        formCard.add(nameField);
+        JButton addButton = Theme.primaryButton("Thêm");
+        formCard.add(addButton);
+        add(formCard, BorderLayout.NORTH);
 
         // Danh sách
         list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        list.setFont(list.getFont().deriveFont(15f));
-        add(new JScrollPane(list), BorderLayout.CENTER);
+        list.setFont(Theme.FONT_REGULAR);
+        list.setFixedCellHeight(28);
+        JScrollPane scroll = new JScrollPane(list);
+        scroll.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Theme.BORDER),
+                "Danh sách thành viên", 0, 0, Theme.FONT_BOLD, Theme.TEXT_PRIMARY
+        ));
+        scroll.getViewport().setBackground(Theme.CARD_BG);
+        add(scroll, BorderLayout.CENTER);
 
         // Nút xóa
-        JPanel bottom = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
-        JButton removeButton = new JButton("Xóa thành viên đã chọn");
-        bottom.add(removeButton);
-        add(bottom, BorderLayout.SOUTH);
+        JPanel bottomCard = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        bottomCard.setBackground(Theme.CARD_BG);
+        bottomCard.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Theme.BORDER),
+                "Thao tác", 0, 0, Theme.FONT_BOLD, Theme.TEXT_PRIMARY
+        ));
+        JButton removeButton = Theme.secondaryButton("Xóa thành viên đã chọn");
+        bottomCard.add(removeButton);
+        add(bottomCard, BorderLayout.SOUTH);
 
         addButton.addActionListener(e -> addMember());
         nameField.addActionListener(e -> addMember());

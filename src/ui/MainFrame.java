@@ -4,6 +4,7 @@ import model.GroupData;
 import storage.DataStore;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
@@ -29,20 +30,35 @@ public class MainFrame extends JFrame {
         this.data = data;
         this.store = store;
 
+        getContentPane().setBackground(Theme.BACKGROUND);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setLayout(new BorderLayout());
+        setLayout(new BorderLayout(0, 10));
 
         // ----- Thanh trên cùng -----
-        JPanel top = new JPanel(new BorderLayout(8, 0));
-        top.setBorder(BorderFactory.createEmptyBorder(8, 10, 4, 10));
-        JPanel left = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
-        left.add(new JLabel("Tên nhóm:"));
+        JPanel topBar = new JPanel(new BorderLayout(12, 0));
+        topBar.setBackground(Theme.CARD_BG);
+        topBar.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(0, 0, 1, 0, Theme.BORDER),
+                new EmptyBorder(10, 16, 10, 16)
+        ));
+
+        JPanel left = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        left.setOpaque(false);
+        JLabel groupLabel = new JLabel("Tên nhóm");
+        groupLabel.setForeground(Theme.TEXT_SECONDARY);
+        left.add(groupLabel);
+        groupNameField.setPreferredSize(new Dimension(280, 32));
         left.add(groupNameField);
-        top.add(left, BorderLayout.CENTER);
-        JButton newGroupButton = new JButton("Nhóm mới");
+        topBar.add(left, BorderLayout.WEST);
+
+        JButton newGroupButton = Theme.secondaryButton("Tạo nhóm mới");
         newGroupButton.addActionListener(e -> newGroup());
-        top.add(newGroupButton, BorderLayout.EAST);
-        add(top, BorderLayout.NORTH);
+        JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        right.setOpaque(false);
+        right.add(newGroupButton);
+        topBar.add(right, BorderLayout.EAST);
+
+        add(topBar, BorderLayout.NORTH);
 
         groupNameField.setText(data.getGroupName());
         groupNameField.getDocument().addDocumentListener(new DocumentListener() {
@@ -68,19 +84,21 @@ public class MainFrame extends JFrame {
             }
         });
 
-        // ----- 3 tab -----
+        // ----- Tabs -----
         membersPanel = new MembersPanel(this, data);
         expensesPanel = new ExpensesPanel(this, data);
         summaryPanel = new SummaryPanel(this, data);
 
         JTabbedPane tabs = new JTabbedPane();
+        tabs.setBorder(new EmptyBorder(0, 12, 12, 12));
+        tabs.setBackground(Theme.BACKGROUND);
         tabs.addTab("Thành viên", membersPanel);
         tabs.addTab("Khoản chi", expensesPanel);
         tabs.addTab("Tổng kết", summaryPanel);
         add(tabs, BorderLayout.CENTER);
 
-        setSize(900, 650);
-        setMinimumSize(new Dimension(720, 520));
+        setSize(950, 680);
+        setMinimumSize(new Dimension(760, 560));
         setLocationRelativeTo(null);
         refreshAll();
     }
@@ -110,8 +128,8 @@ public class MainFrame extends JFrame {
 
     private void newGroup() {
         int choice = JOptionPane.showConfirmDialog(this,
-                "Xóa toàn bộ dữ liệu (thành viên, khoản chi, thanh toán) để bắt đầu nhóm mới?\n"
-                        + "Nhóm hiện tại sẽ được sao lưu tự động trước khi xóa.",
+                "<html>Xóa toàn bộ dữ liệu (thành viên, khoản chi, thanh toán) để bắt đầu nhóm mới?<br>"
+                        + "Nhóm hiện tại sẽ được sao lưu tự động trước khi xóa.</html>",
                 "Nhóm mới", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
         if (choice != JOptionPane.YES_OPTION) return;
 

@@ -9,6 +9,7 @@ import model.Settlement;
 import model.Transfer;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -38,53 +39,72 @@ public class SummaryPanel extends JPanel {
         this.frame = frame;
         this.data = data;
 
-        setLayout(new BorderLayout(8, 8));
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        setLayout(new BorderLayout(10, 10));
+        setOpaque(false);
+        setBorder(Theme.cardBorder());
 
         // ----- Bảng số dư -----
-        styleTable(balanceTable);
+        Theme.styleTable(balanceTable);
         DefaultTableCellRenderer balanceRenderer = new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable t, Object v, boolean sel, boolean foc, int r, int c) {
                 Component comp = super.getTableCellRendererComponent(t, v, sel, foc, r, c);
                 setHorizontalAlignment(SwingConstants.RIGHT);
+                setBorder(new javax.swing.border.EmptyBorder(0, 8, 0, 12));
                 if (!sel) {
                     String s = String.valueOf(v);
-                    if (s.startsWith("+")) comp.setForeground(GREEN);
-                    else if (s.startsWith("\u2212")) comp.setForeground(RED);
-                    else comp.setForeground(t.getForeground());
+                    if (s.startsWith("+")) comp.setForeground(Theme.SUCCESS);
+                    else if (s.startsWith("\u2212") || s.startsWith("-")) comp.setForeground(Theme.DANGER);
+                    else comp.setForeground(Theme.TEXT_PRIMARY);
                 }
                 return comp;
             }
         };
         balanceTable.getColumnModel().getColumn(3).setCellRenderer(balanceRenderer);
-        JPanel balancePanel = titled("Bảng số dư (xanh: được nhận, đỏ: đang nợ)", new JScrollPane(balanceTable), null);
+        for (int i = 0; i < 3; i++) {
+            if (i == 0) continue;
+            balanceTable.getColumnModel().getColumn(i).setCellRenderer(Theme.rightRenderer());
+        }
+        JPanel balancePanel = titledCard("Bảng số dư (xanh: được nhận, đỏ: đang nợ)", new JScrollPane(balanceTable), null);
 
         // ----- Gợi ý thanh toán -----
-        styleTable(suggestTable);
-        JButton paidButton = new JButton("Đã thanh toán");
+        Theme.styleTable(suggestTable);
+        for (int i = 1; i < suggestTable.getColumnCount(); i++) {
+            suggestTable.getColumnModel().getColumn(i).setCellRenderer(Theme.rightRenderer());
+        }
+        JButton paidButton = Theme.primaryButton("Đã thanh toán");
         paidButton.addActionListener(e -> markPaid());
-        JPanel suggestPanel = titled("Gợi ý thanh toán", new JScrollPane(suggestTable), paidButton);
+        JPanel suggestPanel = titledCard("Gợi ý thanh toán", new JScrollPane(suggestTable), paidButton);
 
         // ----- Lịch sử thanh toán -----
-        styleTable(historyTable);
-        JButton cancelButton = new JButton("Hủy");
+        Theme.styleTable(historyTable);
+        for (int i = 1; i < historyTable.getColumnCount(); i++) {
+            historyTable.getColumnModel().getColumn(i).setCellRenderer(Theme.rightRenderer());
+        }
+        JButton cancelButton = Theme.secondaryButton("Hủy");
         cancelButton.addActionListener(e -> cancelSettlement());
-        JPanel historyPanel = titled("Lịch sử thanh toán", new JScrollPane(historyTable), cancelButton);
+        JPanel historyPanel = titledCard("Lịch sử thanh toán", new JScrollPane(historyTable), cancelButton);
 
-        JPanel center = new JPanel(new GridLayout(3, 1, 0, 8));
+        JPanel center = new JPanel(new GridLayout(3, 1, 0, 10));
+        center.setOpaque(false);
         center.add(balancePanel);
         center.add(suggestPanel);
         center.add(historyPanel);
         add(center, BorderLayout.CENTER);
 
         // ----- Thanh dưới -----
-        JPanel bottom = new JPanel(new BorderLayout());
-        bottom.add(totalLabel, BorderLayout.WEST);
-        JButton copyButton = new JButton("Sao chép tổng kết");
+        JPanel bottomCard = new JPanel(new BorderLayout(8, 0));
+        bottomCard.setBackground(Theme.CARD_BG);
+        bottomCard.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Theme.BORDER),
+                new EmptyBorder(8, 12, 8, 12)
+        ));
+        totalLabel.setForeground(Theme.TEXT_SECONDARY);
+        bottomCard.add(totalLabel, BorderLayout.WEST);
+        JButton copyButton = Theme.secondaryButton("Sao chép tổng kết");
         copyButton.addActionListener(e -> copySummary());
-        bottom.add(copyButton, BorderLayout.EAST);
-        add(bottom, BorderLayout.SOUTH);
+        bottomCard.add(copyButton, BorderLayout.EAST);
+        add(bottomCard, BorderLayout.SOUTH);
     }
 
     private static DefaultTableModel readOnlyModel(String... columns) {
@@ -108,12 +128,20 @@ public class SummaryPanel extends JPanel {
         }
     }
 
-    private static JPanel titled(String title, JComponent content, JButton button) {
-        JPanel p = new JPanel(new BorderLayout(4, 4));
-        p.setBorder(BorderFactory.createTitledBorder(title));
-        p.add(content, BorderLayout.CENTER);
+    private static JPanel titledCard(String title, JComponent content, JButton button) {
+        JPanel p = new JPanel(new BorderLayout(6, 6));
+        p.setBackground(Theme.CARD_BG);
+        p.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Theme.BORDER),
+                title, 0, 0, Theme.FONT_BOLD, Theme.TEXT_PRIMARY
+        ));
+        JScrollPane scroll = content instanceof JScrollPane ? (JScrollPane) content : new JScrollPane(content);
+        scroll.setBorder(BorderFactory.createEmptyBorder());
+        scroll.getViewport().setBackground(Theme.CARD_BG);
+        p.add(scroll, BorderLayout.CENTER);
         if (button != null) {
-            JPanel south = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 2));
+            JPanel south = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
+            south.setOpaque(false);
             south.add(button);
             p.add(south, BorderLayout.SOUTH);
         }

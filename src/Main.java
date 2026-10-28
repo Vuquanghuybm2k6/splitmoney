@@ -1,6 +1,7 @@
 import model.GroupData;
 import storage.DataStore;
 import ui.MainFrame;
+import ui.Theme;
 
 import javax.swing.*;
 import java.io.IOException;
@@ -8,11 +9,7 @@ import java.io.IOException;
 /** Điểm khởi động ứng dụng SplitMoney. */
 public class Main {
     public static void main(String[] args) {
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception ignored) {
-            // Dùng giao diện mặc định nếu không đặt được.
-        }
+        Theme.apply();
 
         DataStore store = new DataStore();
         GroupData data;
