@@ -1,0 +1,5 @@
+G	ok
+N	4
+M	1	huy
+M	2	minh
+E	3	ok	100000	1	1,2

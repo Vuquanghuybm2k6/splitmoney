@@ -8,6 +8,10 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /** Cửa sổ chính: thanh trên cùng (tên nhóm, Nhóm mới) và 3 tab. */
 public class MainFrame extends JFrame {
@@ -106,9 +110,36 @@ public class MainFrame extends JFrame {
 
     private void newGroup() {
         int choice = JOptionPane.showConfirmDialog(this,
-                "Xóa toàn bộ dữ liệu (thành viên, khoản chi, thanh toán) để bắt đầu nhóm mới?",
+                "Xóa toàn bộ dữ liệu (thành viên, khoản chi, thanh toán) để bắt đầu nhóm mới?\n"
+                        + "Nhóm hiện tại sẽ được sao lưu tự động trước khi xóa.",
                 "Nhóm mới", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
         if (choice != JOptionPane.YES_OPTION) return;
+
+        // Sao lưu dữ liệu nhóm hiện tại trước khi tạo nhóm mới
+        try {
+            Path currentFile = store.getFile();
+            if (Files.exists(currentFile)) {
+                String groupName = data.getGroupName();
+                if (groupName == null || groupName.trim().isEmpty()) {
+                    groupName = "nhom";
+                }
+                // Làm sạch tên file
+                String safeName = groupName.trim().replaceAll("[^a-zA-Z0-9\\-_]", "_");
+                String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+                Path backupFile = currentFile.resolveSibling("splitmoney-backup-" + safeName + "-" + timeStamp + ".txt");
+                Files.copy(currentFile, backupFile);
+                JOptionPane.showMessageDialog(this,
+                        "Đã sao lưu nhóm cũ vào:\n" + backupFile.getFileName(),
+                        "Đã sao lưu", JOptionPane.INFORMATION_MESSAGE);
+            }
+        } catch (Exception ex) {
+            // Không chặn việc tạo nhóm mới nếu không sao lưu được
+            JOptionPane.showMessageDialog(this,
+                    "Không thể sao lưu tự động nhóm cũ: " + ex.getMessage()
+                            + "\nVẫn tiếp tục tạo nhóm mới?",
+                    "Cảnh báo sao lưu", JOptionPane.WARNING_MESSAGE);
+        }
+
         data.clear();
         settingName = true;
         groupNameField.setText("");
